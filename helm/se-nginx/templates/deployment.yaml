@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "nginx.name" . }}
+  labels:
+    {{- include "nginx.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.deploy.replicas }}
+  selector:
+    matchLabels:
+      {{- include "nginx.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "nginx.labels" . | nindent 8 }}
+    spec:
+      {{- if .Values.externalConfig }}
+      volumes:
+      - name: angular-config
+        configMap:
+          name: {{ .Release.Name }}-config
+      {{- end }}
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+{{- if .Values.deploy.initContainers }}
+      initContainers:
+        {{- tpl (toYaml .Values.deploy.initContainers) . | nindent 8 }}
+{{- end }}
+      containers:
+        - name: web
+          image: {{ include "nginx.imageName" . }}
+          imagePullPolicy: Always
+          ports:
+{{- range .Values.deploy.ports }}
+            - name: {{ .name }}
+              containerPort: {{ .targetPort }}
+              protocol: {{ .protocol }}
+{{- end }}
+          {{- if .Values.externalConfig }}
+          volumeMounts:
+          - name: angular-config
+            mountPath: /code/assets
+          {{- end }}

@@ -1,0 +1,8 @@
+apiVersion: v2
+description: A Helm chart to deploy nginx applications
+keywords:
+- runtimes
+- nginx
+- ui
+name: se-nginx
+version: 0.0.1

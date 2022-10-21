@@ -1,0 +1,5 @@
+{
+    "ENV": "LOCAL",
+    "URL1": "localhost",
+    "URL2": "localhost.local"
+}

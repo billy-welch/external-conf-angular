@@ -1,0 +1,38 @@
+replicaCount: 1
+containerPort: 8080
+imagePullSecrets:
+  - name: sa-test
+nameOverride: ""
+fullnameOverride: ""
+image:
+  name: quay.io/bwelch/angularproject
+  tag: latest
+
+deploy:
+  replicas: 1
+  resources:
+  serviceType: ClusterIP
+  ports:
+    - name: http
+      port: 8080
+      targetPort: 8080
+      protocol: TCP
+    
+  route:
+    enabled: true
+    targetPort: http
+    tls:
+      enabled: true
+      termination: edge
+      insecureEdgeTerminationPolicy: Redirect
+      key:
+      caCertificate:
+      certificate:
+      destinationCACertificate:
+  livenessProbe:
+    tcpSocket:
+      port: http
+  readinessProbe:
+    httpGet:
+      path: /
+      port: http
